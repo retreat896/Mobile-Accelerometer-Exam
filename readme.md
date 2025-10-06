@@ -116,7 +116,7 @@ Mobile-Accelerometer-Exam/
 | Name                | Role                 | Email                                               |
 | :------------------ | :------------------- | :-------------------------------------------------- |
 | 👩‍💻 Kristopher Adams | Developer / Designer | [adamskri@uwplatt.edu](mailto:adamskri@uwplatt.edu) |
-| 👨‍💻 Jacob Malland    | Developer / Tester   | [mallaj@uwplatt.edu](mailto:mallaj@uwplatt.edu)     |
+| 👨‍💻 Jacob Malland    | Developer / Tester   | [mallandj@uwplatt.edu](mailto:mallandj@uwplatt.edu) |
 
 ---
 
