@@ -12,17 +12,32 @@ const getMainStyles = () => {
     return StyleSheet.create({
         screen: {
             backgroundColor: backgroundColor,
+            flex: 1,
         },
         container: {
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
         },
+        footer:{
+            position: 'absolute',
+            bottom: 0,
+            width: '100%',
+            padding: 10,
+            alignContent: 'center',
+            alignItems: 'center',
+            alignSelf: 'center',
+            marginBottom: 40,
+        },
+        
         text: {
             fontSize: 20,
-            fontWeight: 'bold',
             fontFamily: 'system-ui',
             color: textColor,
+            green:{
+                color: 'lime'
+
+            }
         },
         image:{
             width: 200,
