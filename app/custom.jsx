@@ -3,7 +3,7 @@ import getMainStyles from '../styles/main'
 import getButtonStyles from '../styles/button'
 import LinkButton from '../components/linkButton'
 
-const Gravity = () => {
+const Custom = () => {
     const styles = getMainStyles();
     const button = getButtonStyles();
     return (
@@ -11,11 +11,12 @@ const Gravity = () => {
             <SafeAreaView>
                 <LinkButton title="Geometry" link="/geometry" />
                 <LinkButton title="Home" link="/" />
-                <LinkButton title="Gravity" link="/gravity" active="true" />
-                <LinkButton title="Custom" link="/custom" />
+                <LinkButton title="Gravity" link="/gravity" />
+                <LinkButton title="Custom" link="/custom" active="true" />
             </SafeAreaView>
         </SafeAreaProvider>
+
     )
 }
 
-export default Gravity;
+export default Custom

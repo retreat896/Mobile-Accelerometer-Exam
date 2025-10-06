@@ -1,8 +1,8 @@
-import { Pressable, Text, View, Image } from 'react-native'
+import { Text, View, Image } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import getMainStyles from '../styles/main'
 import getButtonStyles from '../styles/button'
-import LinkButton from '../modules/linkButton'
+import LinkButton from '../components/linkButton'
 
 const Index = () => {
     const styles = getMainStyles();
@@ -10,9 +10,10 @@ const Index = () => {
     return (
         <SafeAreaProvider style={styles.screen}>
             <SafeAreaView>
-                <LinkButton title="Water" link="/water" />
+                <LinkButton title="Geometry" link="/geometry" />
                 <LinkButton title="Home" link="/" active="true" />
                 <LinkButton title="Gravity" link="/gravity" />
+                <LinkButton title="Custom" link="/custom" />
                 <View style={styles.flexColumn}>
                     <Text style={styles.text}>CS3720 Mobile Applications Development</Text>
                     <View style={styles.flexColumn}>
