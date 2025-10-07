@@ -18,6 +18,7 @@ const Geometry = () => {
         <LinkButton title="Home" link="/" />
         <LinkButton title="Gravity" link="/gravity" />
         <LinkButton title="Custom" link="/custom" />
+        <LinkButton title="Gyroscope" link="/gyroscope" />
 
         <View style={styles.footer}>
           <Text style={[styles.text,styles.text.green]}>Accelerometer Data:</Text>
