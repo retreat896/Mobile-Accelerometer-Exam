@@ -14,13 +14,14 @@ const Index = () => {
                 <LinkButton title="Home" link="/" active="true" />
                 <LinkButton title="Gravity" link="/gravity" />
                 <LinkButton title="Custom" link="/custom" />
+                <LinkButton title="Gyroscope" link="/gyroscope" />
                 <View style={styles.flexColumn}>
                     <Text style={styles.text}>CS3720 Mobile Applications Development</Text>
                     <View style={styles.flexColumn}>
                         <Text style={styles.text}>UW Platteville </Text>
                         <Image style={styles.image} source={{uri: "https://cdn.uwplatt.edu/logo/vertical/official/b_clear/1024.png"}}/>
                     </View>
-                    <Text style={styles.text}>Kristopher Adams</Text>
+                    <Text style={styles.text}>Kristopher Adams | Jacob Malland</Text>
                     <Text style={styles.text}>Professor: Dr. Abraham Aldaco</Text>
                 </View>
             </SafeAreaView>

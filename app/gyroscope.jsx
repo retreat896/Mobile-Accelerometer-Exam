@@ -1,84 +1,53 @@
 /**
- * Default Code Taken From https://docs.expo.dev/versions/latest/sdk/gyroscope/
+ * Skeleton Code Taken From https://docs.expo.dev/versions/latest/sdk/gyroscope/
  */
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Gyroscope } from 'expo-sensors';
+import getMainStyles from '../styles/main';
+import getButtonStyles from '../styles/button';
+import LinkButton from '../components/linkButton';
+import useGyroscope from '../modules/gyroscope';
 
-export default function App() {
-  const [{ x, y, z }, setData] = useState({
-    x: 0,
-    y: 0,
-    z: 0,
-  });
-  const [subscription, setSubscription] = useState(null);
+const Gyro = () => {
+	const { data: { x, y, z }, subscription, _subscribe, _unsubscribe, _slow, _fast } = useGyroscope();
 
-  const _slow = () => Gyroscope.setUpdateInterval(1000);
-  const _fast = () => Gyroscope.setUpdateInterval(16);
+	const styles = getMainStyles();
+	const button = getButtonStyles();
 
-  const _subscribe = () => {
-    setSubscription(
-      Gyroscope.addListener(gyroscopeData => {
-        setData(gyroscopeData);
-      })
-    );
-  };
+	return (
+		<SafeAreaProvider style={styles.screen}>
+      		<SafeAreaView style={styles.screen}>
+        		<LinkButton title="Geometry" link="/geometry" active="true" />
+        		<LinkButton title="Home" link="/" />
+        		<LinkButton title="Gravity" link="/gravity" />
+        		<LinkButton title="Custom" link="/custom" />
+        		<LinkButton title="Gyroscope" link="/gyroscope" />
 
-  const _unsubscribe = () => {
-    subscription && subscription.remove();
-    setSubscription(null);
-  };
+				<View style={styles.container}>
+					<View style={styles.footer}>
+    		    	  <Text style={[styles.text,styles.text.green]}>Gyroscope Data:</Text>
+	        		  <Text style={[styles.text,styles.text.green]}>x: {x}</Text>
+	    	    	  <Text style={[styles.text,styles.text.green]}>y: {y}</Text>
+    			      <Text style={[styles.text,styles.text.green]}>z: {z}</Text>
+		    	    </View>
 
-  useEffect(() => {
-    _subscribe();
-    return () => _unsubscribe();
-  }, []);
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Gyroscope:</Text>
-      <Text style={styles.text}>x: {x}</Text>
-      <Text style={styles.text}>y: {y}</Text>
-      <Text style={styles.text}>z: {z}</Text>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={subscription ? _unsubscribe : _subscribe} style={styles.button}>
-          <Text>{subscription ? 'On' : 'Off'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={_slow} style={[styles.button, styles.middleButton]}>
-          <Text>Slow</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={_fast} style={styles.button}>
-          <Text>Fast</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+					<View style={styles.buttonContainer}>
+						<TouchableOpacity onPress={subscription ? _unsubscribe : _subscribe} style={styles.button}>
+							<Text>{subscription ? 'On' : 'Off'}</Text>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={_slow} style={[styles.button, styles.middleButton]}>
+							<Text>Slow</Text>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={_fast} style={styles.button}>
+							<Text>Fast</Text>
+						</TouchableOpacity>
+					</View>
+				</View>
+			</SafeAreaView>
+		</SafeAreaProvider>
+	);
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 10,
-  },
-  text: {
-    textAlign: 'center',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    marginTop: 15,
-  },
-  button: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#eee',
-    padding: 10,
-  },
-  middleButton: {
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderColor: '#ccc',
-  },
-});
+export default Gyro;

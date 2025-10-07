@@ -29,7 +29,6 @@ const getMainStyles = () => {
             alignSelf: 'center',
             marginBottom: 40,
         },
-        
         text: {
             fontSize: 20,
             fontFamily: 'system-ui',
@@ -62,7 +61,25 @@ const getMainStyles = () => {
             height: 100,
             resizeMode: 'contain',
             margin: 10,
-        }
+        },
+        /* For Gyroscope Display, from expo demo */
+        buttonContainer: {
+          flexDirection: 'row',
+          alignItems: 'stretch',
+          marginTop: 15,
+        },
+        button: {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#eee',
+          padding: 10,
+        },
+        middleButton: {
+          borderLeftWidth: 1,
+          borderRightWidth: 1,
+          borderColor: '#ccc',
+        },
     });
 }
 
