@@ -5,6 +5,7 @@ import getButtonStyles from '../styles/button';
 import LinkButton from '../components/linkButton';
 import useAccelerometer from '../modules/accelerometer';
 import useGyroscope from '../modules/gyroscope';
+import Navigation from '../components/navigation';
 
 const Geometry = () => {
   const styles = getMainStyles();
@@ -16,10 +17,7 @@ const Geometry = () => {
   return (
     <SafeAreaProvider style={styles.screen}>
       <SafeAreaView style={styles.screen}>
-        <LinkButton title="Geometry" link="/geometry" active="true" />
-        <LinkButton title="Home" link="/" />
-        <LinkButton title="Gravity" link="/gravity" />
-        <LinkButton title="Custom" link="/custom" />
+       <Navigation active="geometry"/>
 
         <View style={styles.footer}>
           <Text style={[styles.text,styles.text.green]}>Accelerometer Data:</Text>

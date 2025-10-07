@@ -8,7 +8,6 @@ export default function RootLayout() {
       <Stack.Screen options={{ headerShown: false }} name="geometry" />
       <Stack.Screen options={{ headerShown: false }} name="gravity" />
       <Stack.Screen options={{ headerShown: false }} name="custom" />
-      <Stack.Screen options={{ headerShown: false }} name="gyroscope" />
     </Stack>
   );
 }

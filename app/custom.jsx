@@ -2,6 +2,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import getMainStyles from '../styles/main'
 import getButtonStyles from '../styles/button'
 import LinkButton from '../components/linkButton'
+import Navigation from '../components/navigation'
 
 const Custom = () => {
     const styles = getMainStyles();
@@ -9,10 +10,7 @@ const Custom = () => {
     return (
         <SafeAreaProvider style={styles.screen}>
             <SafeAreaView>
-                <LinkButton title="Geometry" link="/geometry" />
-                <LinkButton title="Home" link="/" />
-                <LinkButton title="Gravity" link="/gravity" />
-                <LinkButton title="Custom" link="/custom" active="true" />
+                <Navigation active="custom"/>
             </SafeAreaView>
         </SafeAreaProvider>
 
