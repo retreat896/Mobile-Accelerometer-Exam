@@ -28,7 +28,6 @@ const Navigation = ({active}) => {
     let navigate= [];
     for (let link of links) {
         navigate.push(<LinkButton title={link.title} link={link.url} active={(link.name==active) ? "true": "false"}/>)
-        //console.log(link,isActive)
     }
 
     return (
