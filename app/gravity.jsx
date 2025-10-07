@@ -13,7 +13,6 @@ const Gravity = () => {
                 <LinkButton title="Home" link="/" />
                 <LinkButton title="Gravity" link="/gravity" active="true" />
                 <LinkButton title="Custom" link="/custom" />
-                <LinkButton title="Gyroscope" link="/gyroscope" />
             </SafeAreaView>
         </SafeAreaProvider>
     )

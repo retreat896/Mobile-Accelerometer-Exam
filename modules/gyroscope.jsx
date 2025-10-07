@@ -6,29 +6,17 @@ import { Gyroscope } from 'expo-sensors';
  * @returns data, subscription, _subscribe(), _unsubscribe(), _slow(), _fast()
  */
 export default function useGyroscope() {
-    const [data, setData] = useState({ x: 0, y: 0, z: 0 });
-    const [subscription, setSubscription] = useState(null);
+	const [data, setData] = useState({ x: 0, y: 0, z: 0 });
 
-    const _slow = () => Gyroscope.setUpdateInterval(1000);
-    const _fast = () => Gyroscope.setUpdateInterval(16);
 
-    const _subscribe = () => {
-		setSubscription(
-			Gyroscope.addListener(gyroscopeData => {
-				setData(gyroscopeData);
-			})
-		);
-	};
+	useEffect(() => {
+		const sub = Gyroscope.addListener(setData);
+		Gyroscope.setUpdateInterval(100);
 
-	const _unsubscribe = () => {
-		subscription && subscription.remove();
-		setSubscription(null);
-	};
-
-    useEffect(() => {
-		_subscribe();
-		return () => _unsubscribe();
+		return () => {
+			sub && sub.remove();
+		};
 	}, []);
 
-    return { data, subscription, _subscribe, _unsubscribe, _slow, _fast };
+	return data;
 }

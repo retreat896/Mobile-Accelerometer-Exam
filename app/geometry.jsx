@@ -4,12 +4,14 @@ import getMainStyles from '../styles/main';
 import getButtonStyles from '../styles/button';
 import LinkButton from '../components/linkButton';
 import useAccelerometer from '../modules/accelerometer';
+import useGyroscope from '../modules/gyroscope';
 
 const Geometry = () => {
   const styles = getMainStyles();
   const button = getButtonStyles();
-  const { x, y, z } = useAccelerometer();
-    console.log('Accelerometer:', x, y, z);
+  const a = useAccelerometer();
+  const g = useGyroscope();
+
 
   return (
     <SafeAreaProvider style={styles.screen}>
@@ -18,13 +20,16 @@ const Geometry = () => {
         <LinkButton title="Home" link="/" />
         <LinkButton title="Gravity" link="/gravity" />
         <LinkButton title="Custom" link="/custom" />
-        <LinkButton title="Gyroscope" link="/gyroscope" />
 
         <View style={styles.footer}>
           <Text style={[styles.text,styles.text.green]}>Accelerometer Data:</Text>
-          <Text style={[styles.text,styles.text.green]}>x: {x}</Text>
-          <Text style={[styles.text,styles.text.green]}>y: {y}</Text>
-          <Text style={[styles.text,styles.text.green]}>z: {z}</Text>
+          <Text style={[styles.text,styles.text.green]}>x: {a.x.toFixed(2)}</Text>
+          <Text style={[styles.text,styles.text.green]}>y: {a.y.toFixed(2)}</Text>
+          <Text style={[styles.text,styles.text.green]}>z: {a.z.toFixed(2)}</Text>
+          <Text style={[styles.text,styles.text.green]}>Gyroscope Data:</Text>
+          <Text style={[styles.text,styles.text.green]}>x: {g.x.toFixed(2)}</Text>
+          <Text style={[styles.text,styles.text.green]}>y: {g.y.toFixed(2)}</Text>
+          <Text style={[styles.text,styles.text.green]}>z: {g.z.toFixed(2)}</Text> 
         </View>
       </SafeAreaView>
     </SafeAreaProvider>

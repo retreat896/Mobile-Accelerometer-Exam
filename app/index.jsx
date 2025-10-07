@@ -14,7 +14,6 @@ const Index = () => {
                 <LinkButton title="Home" link="/" active="true" />
                 <LinkButton title="Gravity" link="/gravity" />
                 <LinkButton title="Custom" link="/custom" />
-                <LinkButton title="Gyroscope" link="/gyroscope" />
                 <View style={styles.flexColumn}>
                     <Text style={styles.text}>CS3720 Mobile Applications Development</Text>
                     <View style={styles.flexColumn}>

@@ -13,7 +13,6 @@ const Custom = () => {
                 <LinkButton title="Home" link="/" />
                 <LinkButton title="Gravity" link="/gravity" />
                 <LinkButton title="Custom" link="/custom" active="true" />
-                <LinkButton title="Gyroscope" link="/gyroscope" />
             </SafeAreaView>
         </SafeAreaProvider>
 
