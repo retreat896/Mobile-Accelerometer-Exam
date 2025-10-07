@@ -130,7 +130,7 @@ Mobile-Accelerometer-Exam/
 
 [ ![GitHub Graphs](https://github-readme-activity-graph.vercel.app/graph?username=retreat896&repo=Mobile-Accelerometer-Exam&theme=react-dark)](https://github.com/retreat896/Mobile-Accelerometer-Exam)
 
-[ ![GitHub Graphs](https://github-readme-activity-graph.vercel.app/graph?username=JMalland&repo=Mobile-Accelerometer-Exam&theme=react-dark)](https://github.com/reteat896/Mobile-Accelerometer-Exam)
+[ ![GitHub Graphs](https://github-readme-activity-graph.vercel.app/graph?username=JMalland&repo=Mobile-Accelerometer-Exam&theme=react-dark)](https://github.com/retreat896/Mobile-Accelerometer-Exam)
 
 ---
 
