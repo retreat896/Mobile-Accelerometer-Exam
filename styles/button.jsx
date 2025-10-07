@@ -5,7 +5,7 @@ const getButtonStyles = (pressed) => {
     const buttonColor = colorScheme === 'dark' ? '#00012eff' : '#0082beff';
     const buttonPressColor = colorScheme === 'dark' ? '#00001eff' : '#005f8cff';
     const buttonHoverColor = colorScheme === 'dark' ? '#000279ff' : '#006593ff';
-    const textColor = colorScheme === 'dark' ? 'white' : 'black';
+    const textColor = colorScheme === 'dark' ? 'white' : 'white';
     return StyleSheet.create({
 
         onpress: {
