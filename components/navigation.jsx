@@ -1,0 +1,1 @@
+let joke = "God, I hope this isn't inconvenient";
