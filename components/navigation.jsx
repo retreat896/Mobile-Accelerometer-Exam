@@ -1,5 +1,4 @@
 import { View, Text } from 'react-native'
-import React from 'react'
 import LinkButton from './linkButton';
 
 const Navigation = ({active}) => {
@@ -25,10 +24,15 @@ const Navigation = ({active}) => {
             url: "/gravity"
         }
     ];
-    let navigate= [];
-    for (let link of links) {
-        navigate.push(<LinkButton title={link.title} link={link.url} active={(link.name==active) ? "true": "false"}/>)
-    }
+
+    const navigate = links.map((link) => (
+        <LinkButton
+            key={link.name}
+            title={link.title}
+            link={link.url}
+            active={active === link.name ? "true" : "false"}
+        />
+    ));
 
     return (
         <View>
