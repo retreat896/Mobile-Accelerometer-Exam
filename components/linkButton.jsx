@@ -8,7 +8,6 @@ const LinkButton = ({ onPress, title, link, active }) => {
     const router = useRouter();
     const button = getButtonStyles();
     const activeState = active === "true" ? true : false;
-    console.log(active)
     return (
         <Pressable
             onPress={() => {
