@@ -16,9 +16,9 @@ global.THREE = global.THREE || THREE;
 
 const useThreeScene = (accelerometerData, gyroscopeData) => {
   const cubeRef = useRef(null);
-  const animationFrameIdRef = useRef(null); 
+  const animationFrameIdRef = useRef(null);
   const threeRefs = useRef({ renderer: null, scene: null, camera: null });
-  const zRotationRef = useRef(0); 
+
   //Runs once
   const onContextCreate = useCallback(async (gl) => {
     const renderer = new Renderer({ gl });
@@ -36,31 +36,31 @@ const useThreeScene = (accelerometerData, gyroscopeData) => {
     const material = new THREE.MeshBasicMaterial({ color: "#ff0000" });
     const cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
-    cubeRef.current = cube; 
+    cubeRef.current = cube;
     threeRefs.current = { renderer, scene, camera };
 
     const renderLoop = () => {
-        const { renderer, scene, camera } = threeRefs.current;
-        if (renderer && scene && camera) {
-            renderer.render(scene, camera);
-            gl.endFrameEXP();
-        }
-        animationFrameIdRef.current = requestAnimationFrame(renderLoop);
+      const { renderer, scene, camera } = threeRefs.current;
+      if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+        gl.endFrameEXP();
+      }
+      animationFrameIdRef.current = requestAnimationFrame(renderLoop);
     };
-    
+
     renderLoop();
   }, []);
-  
+
   //Stops the loop when screen blurs
   useFocusEffect(
-    //prevent loops stacking
     useCallback(() => {
-        return () => {
-            if (animationFrameIdRef.current) {
-                cancelAnimationFrame(animationFrameIdRef.current);
-                animationFrameIdRef.current = null;
-            }
-        };
+      return () => {
+        //prevent loops stacking
+        if (animationFrameIdRef.current) {
+          cancelAnimationFrame(animationFrameIdRef.current);
+          animationFrameIdRef.current = null;
+        }
+      };
     }, [])
   );
 
@@ -71,16 +71,14 @@ const useThreeScene = (accelerometerData, gyroscopeData) => {
       const pitch = Math.atan2(y, z);
       const roll = Math.atan2(-x, Math.sqrt(y * y + z * z));
 
-      cubeRef.current.rotation.x = pitch; 
-      cubeRef.current.rotation.y = roll; 
+      cubeRef.current.rotation.x = pitch;
+      cubeRef.current.rotation.y = roll;
       cubeRef.current.rotation.z = gyroscopeData.z * 0.01;
     }
   }, [accelerometerData, gyroscopeData]); //runs on accelerometerData change
 
   return onContextCreate;
 };
-
-// ---
 
 const Geometry = () => {
   const styles = getMainStyles();
