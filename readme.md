@@ -78,6 +78,14 @@ npx run start
 
 ---
 
+### Build the final APK (locally)
+
+```bash
+eas build --platform android --profile preview --local
+```
+
+📱 This will require a linux operating system, Java JDK 22, and Android studio instlled with proper Path Variables.
+
 ## 📂 Project Structure
 
 ```
