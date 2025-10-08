@@ -14,10 +14,15 @@ import Navigation from '../components/navigation';
 global.THREE = global.THREE || THREE;
 
 
-const useThreeScene = (accelerometerData, gyroscopeData) => {
+const useThreeScene = (aRef, gRef) => {
   const cubeRef = useRef(null);
   const animationFrameIdRef = useRef(null);
   const threeRefs = useRef({ renderer: null, scene: null, camera: null });
+
+  const rotationVelRef = useRef({ x: 0, y: 0, z: 0 });
+  const DAMPING = 0.95;
+  const ROLL_SENSITIVITY = 0.001;
+  const SMOOTH_FACTOR = 0.1;
 
   //Runs once
   const onContextCreate = useCallback(async (gl) => {
@@ -30,18 +35,42 @@ const useThreeScene = (accelerometerData, gyroscopeData) => {
       0.1,
       1000
     );
-    camera.position.z = 2;
+    camera.position.z = 5;
 
+    //cube
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({ color: "#ff0000" });
     const cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
     cubeRef.current = cube;
+
+    //border
+    const edges = new THREE.EdgesGeometry(geometry);
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+    const line = new THREE.LineSegments(edges, lineMaterial);
+    cube.add(line);
+
     threeRefs.current = { renderer, scene, camera };
 
     const renderLoop = () => {
       const { renderer, scene, camera } = threeRefs.current;
+      const cube = cubeRef.current;
+      const { x: ax, y: ay, z: az } = aRef.current;
+      const { x: gx, y: gy, z: gz } = gRef.current;
+      const rotVel = rotationVelRef.current;
+
       if (renderer && scene && camera) {
+
+        const pitch = Math.atan2(ay, az);
+        const roll = Math.atan2(-ax, Math.sqrt(ay * ay + az * az));
+
+        cube.rotation.x += (pitch - cube.rotation.x) * SMOOTH_FACTOR;
+        cube.rotation.y += (roll - cube.rotation.y) * SMOOTH_FACTOR;
+
+        rotVel.z += gz * ROLL_SENSITIVITY;
+        rotVel.z *= DAMPING;
+        cube.rotation.z += rotVel.z;
+
         renderer.render(scene, camera);
         gl.endFrameEXP();
       }
@@ -49,7 +78,7 @@ const useThreeScene = (accelerometerData, gyroscopeData) => {
     };
 
     renderLoop();
-  }, []);
+  }, [aRef, gRef]);
 
   //Stops the loop when screen blurs
   useFocusEffect(
@@ -64,28 +93,15 @@ const useThreeScene = (accelerometerData, gyroscopeData) => {
     }, [])
   );
 
-  //update Cube
-  useEffect(() => {
-    if (cubeRef.current && accelerometerData) {
-      const { x, y, z } = accelerometerData;
-      const pitch = Math.atan2(y, z);
-      const roll = Math.atan2(-x, Math.sqrt(y * y + z * z));
-
-      cubeRef.current.rotation.x = pitch;
-      cubeRef.current.rotation.y = roll;
-      cubeRef.current.rotation.z = gyroscopeData.z * 0.01;
-    }
-  }, [accelerometerData, gyroscopeData]); //runs on accelerometerData change
-
   return onContextCreate;
 };
 
 const Geometry = () => {
   const styles = getMainStyles();
-  const a = useAccelerometer();
-  const g = useGyroscope();
+  const aRef = useAccelerometer();
+  const gRef = useGyroscope();
 
-  const onContextCreate = useThreeScene(a, g);
+  const onContextCreate = useThreeScene(aRef, gRef);
 
   return (
     <SafeAreaProvider style={styles.screen}>
@@ -93,12 +109,12 @@ const Geometry = () => {
         <Navigation active="geometry" />
 
         <GLView
-          style={{ flex: 1 }}
+          style={styles.glView}
           onContextCreate={onContextCreate}
         />
 
         <View style={styles.footer}>
-          <SensorDataDisplay a={a} g={g} styles={styles} />
+          <SensorDataDisplay a={aRef.current} g={gRef.current} styles={styles} />
         </View>
       </SafeAreaView>
     </SafeAreaProvider>

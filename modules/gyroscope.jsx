@@ -1,21 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { Gyroscope } from 'expo-sensors';
 
-const FRAME_RATE = 90;
+// Set your desired update rate
+const FRAME_RATE = 60; // Use a higher rate like 60 FPS for smoother input
 const FRAME_RATE_MS = 1000 / FRAME_RATE;
 
 export default function useGyroscope() {
-	const [data, setData] = useState({ x: 0, y: 0, z: 0 });
-
-
-	useEffect(() => {
-		const sub = Gyroscope.addListener(setData);
-		Gyroscope.setUpdateInterval(FRAME_RATE_MS);
-
-		return () => {
-			sub && sub.remove();
-		};
-	}, []);
-
-	return data;
+  const dataRef = useRef({ x: 0, y: 0, z: 0 });
+  useEffect(() => {
+    const listener = (newData) => {
+      dataRef.current = newData;
+    };
+    const sub = Gyroscope.addListener(listener);
+    Gyroscope.setUpdateInterval(FRAME_RATE_MS);
+    return () => {
+      sub && sub.remove();
+    };
+  }, []);
+  return dataRef;
 }

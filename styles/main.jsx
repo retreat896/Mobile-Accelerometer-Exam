@@ -83,6 +83,19 @@ const getMainStyles = () => {
           borderRightWidth: 1,
           borderColor: '#ccc',
         },
+        glView: {
+            backgroundColor: backgroundColor,
+            flex: 1,
+            //fill the screen with no margin and padding
+            margin: 0,
+            padding: 0,
+            width: '100%',
+            height: '120%',
+            top: 0,
+            left: 0,
+            position: 'absolute',
+            zIndex: -1,
+        }
     });
 }
 
