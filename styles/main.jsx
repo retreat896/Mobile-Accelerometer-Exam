@@ -38,6 +38,9 @@ const getMainStyles = () => {
 
             }
         },
+        bold:{
+            fontWeight: 'bold',
+        },
         image:{
             width: 200,
             height: 200,

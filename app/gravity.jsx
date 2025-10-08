@@ -1,7 +1,6 @@
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import getMainStyles from '../styles/main'
 import getButtonStyles from '../styles/button'
-import LinkButton from '../components/linkButton'
 import Navigation from '../components/navigation'
 
 const Gravity = () => {
