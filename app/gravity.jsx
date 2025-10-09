@@ -1,11 +1,9 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, Dimensions } from 'react-native';
+import { Text, Dimensions } from 'react-native';
 import { GLView } from 'expo-gl';
 import { Renderer, THREE } from 'expo-three';
-import { useFocusEffect } from '@react-navigation/native'; // Ensure correct package name
-
-// Local Imports
+import { useFocusEffect } from '@react-navigation/native';
 import getMainStyles from '../styles/main';
 import useAccelerometer from '../modules/accelerometer';
 import useGyroscope from '../modules/gyroscope';
@@ -14,23 +12,19 @@ import Navigation from '../components/navigation';
 global.THREE = global.THREE || THREE;
 
 
-const useThreeScene = (aRef, gRef) => {
+const useThreeScene = (aRef) => {
     const physicsRef = useRef({
         velocityX: 0,
         velocityY: 0,
         DAMPING: 0.95,
-        ACCEL_SENSITIVITY: 0.1, // Reduced this from 1 to 0.1 for stability
+        ACCEL_SENSITIVITY: 0.1,
         ROLL_SENSITIVITY: 0.1,
-        boundX: 2.9,
-        boundY: 6,
     });
-    const sensorDataRef = useRef({ a: { x: 0, y: 0, z: 0 }, g: { x: 0, y: 0, z: 0 } });
 
-
-    const { width, height } = Dimensions.get('window');
     const ballRef = useRef(null);
     const animationFrameIdRef = useRef(null);
     const threeRefs = useRef({ renderer: null, scene: null, camera: null });
+    const { width, height } = Dimensions.get('window');
 
     //Runs once
     const onContextCreate = useCallback(async (gl) => {
@@ -45,11 +39,19 @@ const useThreeScene = (aRef, gRef) => {
         );
         camera.position.z = 10;
 
-        const geometry = new THREE.CircleGeometry(0.5, 10);
+        const geometry = new THREE.CircleGeometry(0.5, 100);
         const material = new THREE.MeshBasicMaterial({ color: "#ff0000" });
         const ball = new THREE.Mesh(geometry, material);
         scene.add(ball);
+
+        const edges = new THREE.EdgesGeometry(geometry);
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00, linewidth: 5 });
+        const line = new THREE.LineSegments(edges, lineMaterial);
+        ball.add(line);
+
         ballRef.current = ball;
+
+
         threeRefs.current = { renderer, scene, camera };
 
         const renderLoop = () => {
@@ -57,42 +59,35 @@ const useThreeScene = (aRef, gRef) => {
 
             const ball = ballRef.current;
             const a = aRef.current;
-            const g = gRef.current;
             const p = physicsRef.current;
+            const vFOV = 75 * (Math.PI / 180);
+            const viewHeight = 2 * camera.position.z * Math.tan(vFOV / 2);
+            const aspectRatio = width / height;
+            const viewWidth = viewHeight * aspectRatio;
+            const boundX = (viewWidth / 2) - .8;
+            const boundY = (viewHeight / 2) - .5;
 
             if (renderer && scene && camera) {
-                // --- 1. Ball Movement Logic (Now inside the 60FPS loop) ---
-
-                // Velocity Update
+                //velocity Update
                 p.velocityX += -a.x * p.ACCEL_SENSITIVITY;
-                p.velocityY += -a.y * p.ACCEL_SENSITIVITY; // Note: Use -a.y or (a.y-1) depending on your required frame of reference
+                p.velocityY += -a.y * p.ACCEL_SENSITIVITY;
 
-                // Damping
+                //damping
                 p.velocityX *= p.DAMPING;
                 p.velocityY *= p.DAMPING;
 
-                // Position Update
+                //position Update
                 ball.position.x += p.velocityX;
                 ball.position.y += p.velocityY;
 
-                // // Rotation (Rolling)
-                // // Note: Ensure gyroscopeData is being used here if desired
-                // if (g) {
-                //     ball.rotation.x += g.x * p.ROLL_SENSITIVITY;
-                //     ball.rotation.y += g.y * p.ROLL_SENSITIVITY;
-                //     ball.rotation.z += g.z * p.ROLL_SENSITIVITY;
-                // }
+                //collisions (Boundary Check)
+                ball.position.x = Math.max(Math.min(ball.position.x, boundX), -boundX);
+                ball.position.y = Math.max(Math.min(ball.position.y, boundY), -boundY);
 
-                // Collisions (Boundary Check)
-                ball.position.x = Math.max(Math.min(ball.position.x, p.boundX), -p.boundX);
-                ball.position.y = Math.max(Math.min(ball.position.y, p.boundY), -p.boundY);
+                //bounce off of walls
+                if (ball.position.x === boundX || ball.position.x === -boundX) p.velocityX *= -0.5;
+                if (ball.position.y === boundY || ball.position.y === -boundY) p.velocityY *= -0.5;
 
-                // Optional: Bounce on collision
-                if (ball.position.x === p.boundX || ball.position.x === -p.boundX) p.velocityX *= -0.5;
-                if (ball.position.y === p.boundY || ball.position.y === -p.boundY) p.velocityY *= -0.5;
-
-
-                // --- 2. Rendering ---
                 renderer.render(scene, camera);
                 gl.endFrameEXP();
             }
@@ -100,7 +95,7 @@ const useThreeScene = (aRef, gRef) => {
         };
 
         renderLoop();
-    }, [aRef, gRef]);
+    }, [aRef]);
 
     //Stops the loop when screen blurs
     useFocusEffect(

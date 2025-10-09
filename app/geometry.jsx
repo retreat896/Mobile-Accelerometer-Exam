@@ -1,18 +1,15 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text } from 'react-native';
 import { GLView } from 'expo-gl';
 import { Renderer, THREE } from 'expo-three';
-import { useFocusEffect } from '@react-navigation/native'; // Ensure correct package name
-
-// Local Imports
+import { useFocusEffect } from '@react-navigation/native';
 import getMainStyles from '../styles/main';
 import useAccelerometer from '../modules/accelerometer';
 import useGyroscope from '../modules/gyroscope';
 import Navigation from '../components/navigation';
 
 global.THREE = global.THREE || THREE;
-
 
 const useThreeScene = (aRef, gRef) => {
   const cubeRef = useRef(null);
@@ -56,7 +53,7 @@ const useThreeScene = (aRef, gRef) => {
       const { renderer, scene, camera } = threeRefs.current;
       const cube = cubeRef.current;
       const { x: ax, y: ay, z: az } = aRef.current;
-      const { x: gx, y: gy, z: gz } = gRef.current;
+      const { z: gz } = gRef.current;
       const rotVel = rotationVelRef.current;
 
       if (renderer && scene && camera) {

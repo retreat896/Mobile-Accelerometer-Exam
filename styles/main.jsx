@@ -90,11 +90,13 @@ const getMainStyles = () => {
             margin: 0,
             padding: 0,
             width: '100%',
-            height: '120%',
+            height: '108%',
             top: 0,
             left: 0,
             position: 'absolute',
             zIndex: -1,
+            borderColor: 'red',
+            borderWidth: 1,
         }
     });
 }
