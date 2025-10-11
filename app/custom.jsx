@@ -11,13 +11,12 @@ import Navigation from '../components/navigation';
 import { File, Paths } from 'expo-file-system';
 import { Asset } from 'expo-asset';
 
+global.THREE = global.THREE || THREE;
 
 // The Balloon SVG files
 const BalloonSVG = Asset.fromModule(require('../assets/Balloon.svg'));
 const StringSVG = Asset.fromModule(require('../assets/Balloon_String.svg'));
 const DartSVG = Asset.fromModule(require('../assets/Dart.svg'));
-
-global.THREE = global.THREE || THREE;
 
 // Helper to load SVG file contents from a relative path
 /**
@@ -84,8 +83,6 @@ function RenderSVG(svgData, color, opacity) {
  * @returns Balloon 3D Object
  */
 function CreateBalloon() {
-    console.log(Balloon);
-
     // Get the SVG object
     const balloonSVG = RenderSVG(Balloon, 0xe02100, 1);
 
@@ -105,8 +102,31 @@ function CreateBalloon() {
 
     // Make the Balloon a single group, to render as one
     const balloon = new THREE.Group();
+    
+    // Name the parts for identification
+    balloonSVG.name = 'balloonHead';
+    stringSVG.name = 'balloonString';
+    
+    // Add to the balloon group
     balloon.add(balloonSVG);
     balloon.add(stringSVG);
+
+    // Whether the balloon has been popped
+    balloon.popped = false;
+
+    // Add method to check collision with balloon head only
+    balloon.checkHeadCollision = (object) => {
+        // Find the balloon head by name
+        const balloonHead = balloon.children.find(child => child.name === 'balloonHead');
+        if (!balloonHead) return false;
+
+        // Create bounding boxes for both objects
+        const headBox = new THREE.Box3().setFromObject(balloonHead);
+        const objectBox = new THREE.Box3().setFromObject(object);
+
+        // Check for collision
+        return headBox.intersectsBox(objectBox);
+    };
 
     return balloon;
 }
@@ -135,10 +155,11 @@ const useThreeScene = (aRef) => {
     });
 
     const dartRef = useRef(null);
-    const balloonRef = useRef(null);
     const animationFrameIdRef = useRef(null);
     const threeRefs = useRef({ renderer: null, scene: null, camera: null });
     const { width, height } = Dimensions.get('window');
+    // Object queue to manage balloons
+    const balloonQueue = [];
 
     const onContextCreate = useCallback(async (gl) => {
         const renderer = new Renderer({ gl });
@@ -154,9 +175,6 @@ const useThreeScene = (aRef) => {
 
         const dart = CreateDart();
         
-        // Scale and rotate the dart appropriately
-        dart.scale.set(0.005, -0.005, 0.005); // Scale down the SVG and flip vertically
-        
         scene.add(dart);
         dartRef.current = dart;
 
@@ -164,7 +182,9 @@ const useThreeScene = (aRef) => {
         balloon.position.set(0, 0, 0); // Position to the right of the dart
         
         scene.add(balloon);
-        balloonRef.current = balloon;
+        balloonQueue.push(balloon);
+
+        
 
         threeRefs.current = { renderer, scene, camera };
 
@@ -182,10 +202,35 @@ const useThreeScene = (aRef) => {
             const boundY = (viewHeight / 2) - 0.5;
 
             if (renderer && scene && camera && dart) {
-                const balloon = balloonRef.current;
-                if (balloon) {
+                // Manage the Balloon Queue
+                for (let balloon of balloonQueue) {
+                    let scale = balloon.scale;
+
                     // Make the balloon gently float up and down
                     balloon.position.y = Math.sin(Date.now() * 0.001) * 0.1;
+
+                    // The balloon has been popped
+                    if (balloon.popped) {
+                        // It's been fully shrunk
+                        if (scale.x <= 0 || scale.y <= 0) {
+                            // Delete the balloon from the scene and the queue
+                            scene.remove(balloon);
+                            balloonQueue.splice(balloonQueue.indexOf(balloon));
+                        }
+                        // Continue shrinking the balloon
+                        else {
+                            // Shrink the balloon (Not sure if Z makes a difference, but leaving it all the same)
+                            balloon.scale.set(scale.x - 0.01, scale.y - 0.01, scale.z - 0.01);
+                        }
+                    }
+
+                    // Check for collision with dart
+                    if (!balloon.popped && balloon.checkHeadCollision(dart)) {
+                        console.log('Hit balloon head!');
+                        console.log(scale);
+                        // You can add pop animation or removal logic here
+                        balloon.popped = true;
+                    }
                 }
 
                 // Update velocity based on accelerometer
