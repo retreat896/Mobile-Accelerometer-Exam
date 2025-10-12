@@ -6,7 +6,7 @@ const getMainStyles = () => {
     const colorScheme = useColorScheme();
     const textColor = colorScheme === 'dark' ? 'white' : 'black';
     const backgroundColor = colorScheme === 'dark' ? '#2e2e2eff' : 'white';
-
+    
 
 
     return StyleSheet.create({
@@ -34,9 +34,13 @@ const getMainStyles = () => {
             fontFamily: 'system-ui',
             color: textColor,
             green:{
-                color: 'lime'
-
+                color: 'green'
             }
+        },
+        score:{
+            alignContent: "center",
+            justifyContent: "center",
+            alignSelf:"center",
         },
         bold:{
             fontWeight: 'bold',
@@ -84,7 +88,6 @@ const getMainStyles = () => {
           borderColor: '#ccc',
         },
         glView: {
-            backgroundColor: backgroundColor,
             flex: 1,
             //fill the screen with no margin and padding
             margin: 0,
@@ -97,6 +100,14 @@ const getMainStyles = () => {
             zIndex: -1,
             borderColor: 'red',
             borderWidth: 1,
+        },
+        backgroundImage:{
+            width: '100%',
+            height: '110%',
+            top: 0,
+            left: 0,
+            position: 'absolute',
+            zIndex: -2,
         }
     });
 }
