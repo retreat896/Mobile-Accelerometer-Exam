@@ -222,8 +222,8 @@ const useThreeScene = (aRef) => {
                 for (let balloon of balloonQueue) {
                     let scale = balloon.scale;
 
-                    // It's been fully shrunk
-                    if (balloon.position.y > (balloon.getHeight() + viewHeight) || (scale.x <= 0 || scale.y <= 0)) {
+                    // It's been fully shrunk, or has flown off-screen
+                    if (balloon.position.y > (balloon.getHeight() + viewHeight) || Math.abs(balloon.position.x) > (balloon.getWidth() + viewWidth) || (scale.x <= 0 || scale.y <= 0)) {
                         // Delete the balloon from the scene and the queue
                         scene.remove(balloon);
                         balloonQueue.splice(balloonQueue.indexOf(balloon), 1);
