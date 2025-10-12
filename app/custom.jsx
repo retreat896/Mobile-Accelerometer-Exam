@@ -122,9 +122,6 @@ function createBalloon(color) {
     balloon.add(balloonSVG);
     balloon.add(stringSVG);
 
-    // Whether the balloon has been popped
-    balloon.popped = false;
-
     // Add method to check collision with balloon head only
     balloon.checkHeadCollision = (object) => {
         // Find the balloon head by name
@@ -223,11 +220,10 @@ const useThreeScene = (aRef) => {
             if (renderer && scene && camera && dart) {
                 // Manage the Balloon Queue
                 for (let balloon of balloonQueue) {
-                    let position = balloon.position;
                     let scale = balloon.scale;
 
                     // It's been fully shrunk
-                    if (position.y > (balloon.getHeight() + viewHeight) || (scale.x <= 0 || scale.y <= 0)) {
+                    if (balloon.position.y > (balloon.getHeight() + viewHeight) || (scale.x <= 0 || scale.y <= 0)) {
                         // Delete the balloon from the scene and the queue
                         scene.remove(balloon);
                         balloonQueue.splice(balloonQueue.indexOf(balloon), 1);
@@ -318,6 +314,7 @@ const useThreeScene = (aRef) => {
 
                 // Create the Balloon
                 let balloon = createBalloon(BalloonColor[type]); 
+                balloon.popped = false; // Balloon Popped?
                 balloon.speed = BalloonSpeed[type]; // Balloon Speed
                 balloon.drift = Math.random() * balloon.speed; // Balloon Drift
                 balloon.value = BalloonValue[type]; // Balloon Value
