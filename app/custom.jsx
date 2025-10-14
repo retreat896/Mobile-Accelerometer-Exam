@@ -1,6 +1,6 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState, useEffect } from 'react';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { Dimensions, View } from 'react-native';
+import { Dimensions, View, Image, Text } from 'react-native';
 import { GLView } from 'expo-gl';
 import { Renderer, THREE } from 'expo-three';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader';
@@ -8,26 +8,29 @@ import { useFocusEffect } from '@react-navigation/native';
 import getMainStyles from '../styles/main';
 import useAccelerometer from '../modules/accelerometer';
 import Navigation from '../components/navigation';
-import { File, Paths } from 'expo-file-system';
+import { File } from 'expo-file-system';
 import { Asset } from 'expo-asset';
 
 global.THREE = global.THREE || THREE;
 
 // Game Settings
-const BalloonTimer = 400; // Milliseconds
-const TimerVariation = 100; // +/- Random() * TimerVariation added to timer
-const MaxBalloons = 9; // Most Balloons being processed at once
-const BaseVelocity = 0.03; // The base flight velocity of all balloons 
+const BALLOON_TIMER = 400; // Milliseconds
+const TIMER_VARIATION = 100; // +/- Random() * TIMER_VARIATION added to timer
+const MAX_BALLOONS = 9; // Most Balloons being processed at once
+const BASE_VELOCITY = 0.03; // The base flight velocity of all balloons
+const DART_DAMPENING = 0.25; // Dampens the velocity of the dart
 
 // Balloon types, speed, value
 const BalloonColor = [0xe02100, 0xffe000, 0x21e000, 0x0066e0]; // red, yellow, green, blue
 const BalloonSpeed = [1, 1.75, 2.5, 3];
-const BalloonValue = [1, 2,   3,    4];
+const BalloonValue = [1, 2,    3,   4];
 
 // The Balloon SVG files
 const BalloonSVG = Asset.fromModule(require('../assets/Balloon.svg'));
 const StringSVG = Asset.fromModule(require('../assets/Balloon_String.svg'));
 const DartSVG = Asset.fromModule(require('../assets/Dart.svg'));
+
+
 
 // Helper to load SVG file contents from a relative path
 /**
@@ -94,17 +97,11 @@ function renderSVG(svgData, color, opacity) {
  * @returns Balloon 3D Object
  */
 function createBalloon(color) {
-    // Get the SVG object
-    const balloonSVG = renderSVG(Balloon, color, 1);
-
-    balloonSVG.scale.set(0.002, -0.001, 0.002); // Scale appropriately
-    balloonSVG.rotateY(90); // Rotate 90 degrees
-
-    // Get the String SVG object
+    const balloonSVG = renderSVG(Balloon, color || 0x000000, 1);
+    balloonSVG.scale.set(0.001, -0.001, 0.001);
     const stringSVG = renderSVG(String, 0x00000, 1);
 
-    // Keep same scale as Balloon
-    stringSVG.scale.set(0.002, -0.001, 0.002);
+    stringSVG.scale.set(0.001, -0.001, 0.001);
 
     // Format String position to be in-line with the balloon's end.
     // This is an approximation
@@ -121,9 +118,6 @@ function createBalloon(color) {
     // Add to the balloon group
     balloon.add(balloonSVG);
     balloon.add(stringSVG);
-
-    // Whether the balloon has been popped
-    balloon.popped = false;
 
     // Add method to check collision with balloon head only
     balloon.checkHeadCollision = (object) => {
@@ -169,7 +163,7 @@ function createDart() {
     return dartSVG;
 }
 
-const useThreeScene = (aRef) => {
+const useThreeScene = (aRef, setScore) => {
     const physicsRef = useRef({
         velocityX: 0,
         velocityY: 0,
@@ -177,11 +171,10 @@ const useThreeScene = (aRef) => {
         ACCEL_SENSITIVITY: 0.1,
     });
 
-    const dartRef = useRef(null);
-    const balloonQueueRef = useRef(null);
     const animationFrameIdRef = useRef(null);
     const threeRefs = useRef({ renderer: null, scene: null, camera: null });
     const { width, height } = Dimensions.get('window');
+    
 
     const onContextCreate = useCallback(async (gl) => {
         const renderer = new Renderer({ gl });
@@ -197,12 +190,9 @@ const useThreeScene = (aRef) => {
 
         const dart = createDart();
         scene.add(dart);
-        dartRef.current = dart;
 
         // Object queue to manage balloons
         const balloonQueue = [];
-
-        balloonQueueRef.current = balloonQueue
 
         threeRefs.current = { renderer, scene, camera };
 
@@ -216,87 +206,88 @@ const useThreeScene = (aRef) => {
         const renderLoop = () => {
             const { renderer, scene, camera } = threeRefs.current;
             
-            const dart = dartRef.current;
             const a = aRef.current;
             const p = physicsRef.current;
 
-            if (renderer && scene && camera && dart) {
-                // Manage the Balloon Queue
-                for (let balloon of balloonQueue) {
-                    let position = balloon.position;
-                    let scale = balloon.scale;
-
-                    // It's been fully shrunk
-                    if (position.y > (balloon.getHeight() + viewHeight) || (scale.x <= 0 || scale.y <= 0)) {
-                        // Delete the balloon from the scene and the queue
-                        scene.remove(balloon);
-                        balloonQueue.splice(balloonQueue.indexOf(balloon), 1);
-
-                        // Keep processing the remaining balloons
-                        continue
-                    }
-
-                    // Make the balloon gently go with the "wind"
-                    balloon.position.x += Math.abs(Math.cos(Date.now() * 0.001) * 0.01 * balloon.drift);
-
-                    // The balloon has been popped
-                    if (!balloon.popped) {
-                        // Check for collision with dart
-                        if (balloon.checkHeadCollision(dart)) {
-                            console.log('Hit balloon head!');
-                            
-                            // You can add pop animation or removal logic here
-                            balloon.popped = true;
-
-                            // Keep processing the remaining balloons
-                            continue;
-                        }
-
-                        // Increase the balloon's height
-                        balloon.position.y += BaseVelocity * balloon.speed;
-                    }
-                    else {
-                        // Shrink the balloon
-                        balloon.scale.x, balloon.scale.y -= 0.05;
-                    }
-                }
-
-                // Update velocity based on accelerometer
-                p.velocityX += -a.x * p.ACCEL_SENSITIVITY;
-                p.velocityY += -a.y * p.ACCEL_SENSITIVITY;
-
-                // Apply damping
-                p.velocityX *= p.DAMPING;
-                p.velocityY *= p.DAMPING;
-
-                // Update position
-                dart.position.x += p.velocityX;
-                dart.position.y += p.velocityY;
-
-                // Calculate rotation angle based on velocity direction
-                const angle = Math.atan2(p.velocityY, p.velocityX);
-                dart.rotation.z = angle + Math.PI / 2; // Add PI/2 to invert the direction
-
-                // Boundary checks with bounce effect
-                if (dart.position.x > boundX) {
-                    dart.position.x = boundX;
-                    p.velocityX *= -0.5;
-                } else if (dart.position.x < -boundX) {
-                    dart.position.x = -boundX;
-                    p.velocityX *= -0.5;
-                }
-
-                if (dart.position.y > boundY) {
-                    dart.position.y = boundY;
-                    p.velocityY *= -0.5;
-                } else if (dart.position.y < -boundY) {
-                    dart.position.y = -boundY;
-                    p.velocityY *= -0.5;
-                }
-
-                renderer.render(scene, camera);
-                gl.endFrameEXP();
+            // If any don't exist, don't render
+            if (!renderer || !scene || !camera || !dart) {
+                return;
             }
+
+            // Manage the Balloon Queue
+            for (let balloon of balloonQueue) {
+                let scale = balloon.scale;
+
+                // It's been fully shrunk, or has flown off-screen
+                if (balloon.position.y > (balloon.getHeight() + viewHeight) || Math.abs(balloon.position.x) > (balloon.getWidth() + viewWidth) || (scale.x <= 0 || scale.y <= 0)) {
+                    // Delete the balloon from the scene and the queue
+                    scene.remove(balloon);
+                    balloonQueue.splice(balloonQueue.indexOf(balloon), 1);
+
+                    // Keep processing the remaining balloons
+                    continue
+                }
+
+                // Make the balloon gently go with the "wind"
+                balloon.position.x += Math.abs(Math.cos(Date.now() * 0.001) * 0.01 * balloon.drift);
+
+                if (balloon.popped) {
+                    // Shrink the balloon
+                    balloon.scale.x -= 0.05;
+                    balloon.scale.y -= 0.05;
+
+                    // Keep processing the remaining balloons
+                    continue
+                }
+
+                // Check for collision with dart
+                if (!balloon.popped && balloon.checkHeadCollision(dart)) {
+                    balloon.popped = true;
+                    console.log('Hit balloon head!');
+                    setScore((prev) => prev + balloon.value);
+                    continue; 
+                }
+
+                // Increase the balloon's height
+                balloon.position.y += BASE_VELOCITY * balloon.speed;
+            }
+
+            // Update velocity based on accelerometer
+            p.velocityX += -a.x * p.ACCEL_SENSITIVITY;
+            p.velocityY += -a.y * p.ACCEL_SENSITIVITY;
+
+            // Apply damping
+            p.velocityX *= p.DAMPING;
+            p.velocityY *= p.DAMPING;
+
+            // Update position
+            dart.position.x += p.velocityX * DART_DAMPENING;
+            dart.position.y += p.velocityY * DART_DAMPENING;
+
+            // Calculate rotation angle based on velocity direction
+            const angle = Math.atan2(p.velocityY, p.velocityX);
+            dart.rotation.z = angle + Math.PI / 2; // Add PI/2 to invert the direction
+
+            // Boundary checks with bounce effect
+            if (dart.position.x > boundX) {
+                dart.position.x = boundX;
+                p.velocityX *= -0.5;
+            } else if (dart.position.x < -boundX) {
+                dart.position.x = -boundX;
+                p.velocityX *= -0.5;
+            }
+
+            if (dart.position.y > boundY) {
+                dart.position.y = boundY;
+                p.velocityY *= -0.5;
+            } else if (dart.position.y < -boundY) {
+                dart.position.y = -boundY;
+                p.velocityY *= -0.5;
+            }
+
+            renderer.render(scene, camera);
+            gl.endFrameEXP();
+
             animationFrameIdRef.current = requestAnimationFrame(renderLoop);
         };
         
@@ -308,16 +299,17 @@ const useThreeScene = (aRef) => {
         const BalloonGenerator = () => {
             setTimeout(() => {
                 // Don't make a new balloon
-                if (MaxBalloons === balloonQueue.length) {
+                if (MAX_BALLOONS === balloonQueue.length) {
                     BalloonGenerator();
                     return;
                 }
 
                 // Determine the balloon type
-                let type = Math.floor(BalloonColor.length * (Math.random() + Math.random())); // Balloon Type
+                let type = Math.floor(Math.random() * BalloonColor.length);
 
                 // Create the Balloon
                 let balloon = createBalloon(BalloonColor[type]); 
+                balloon.popped = false; // Balloon Popped?
                 balloon.speed = BalloonSpeed[type]; // Balloon Speed
                 balloon.drift = Math.random() * balloon.speed; // Balloon Drift
                 balloon.value = BalloonValue[type]; // Balloon Value
@@ -339,7 +331,7 @@ const useThreeScene = (aRef) => {
                     // Continue Generating Balloons
                     BalloonGenerator();
                 }
-            }, BalloonTimer + TimerVariation * Math.random());
+            }, BALLOON_TIMER + TIMER_VARIATION * Math.random());
         }
 
         // Turn on the Balloon Generator
@@ -363,16 +355,30 @@ const useThreeScene = (aRef) => {
 const Custom = () => {
     const styles = getMainStyles();
     const aRef = useAccelerometer();
-    const onContextCreate = useThreeScene(aRef);
+    const [score, setScore] = useState(0);
+    const context = useThreeScene(aRef, setScore);
+
+    // Update the screen every 200ms to show the score
+    const [tick, setTick] = useState(0);
+    useEffect(() => {
+        const interval = setInterval(() => setTick((t) => t + 1), 200);
+        return () => clearInterval(interval);
+    }, []);
+        
 
     return (
         <SafeAreaProvider style={styles.screen}>
             <SafeAreaView style={styles.screen}>
                 <Navigation active="custom" />
                 <GLView
-                    style={styles.glView}
-                    onContextCreate={onContextCreate}
+                    style={[styles.glView, styles.my]}
+                    onContextCreate={context}
                 />
+                <Image
+                    style={styles.backgroundImage}
+                    source={require("../assets/Ocean_Clouds.png")}
+                />
+                <Text style={[styles.footer, styles.text.green,styles.score]}>{score}</Text>
             </SafeAreaView>
         </SafeAreaProvider>
     );

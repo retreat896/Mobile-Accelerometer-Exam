@@ -1,6 +1,6 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState, useEffect } from 'react';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { Text, Dimensions } from 'react-native';
+import { Text, Dimensions, Button } from 'react-native';
 import { GLView } from 'expo-gl';
 import { Renderer, THREE } from 'expo-three';
 import { useFocusEffect } from '@react-navigation/native';
@@ -13,6 +13,7 @@ global.THREE = global.THREE || THREE;
 
 
 const useThreeScene = (aRef) => {
+
     const physicsRef = useRef({
         velocityX: 0,
         velocityY: 0,
@@ -20,6 +21,8 @@ const useThreeScene = (aRef) => {
         ACCEL_SENSITIVITY: 0.1,
         ROLL_SENSITIVITY: 0.1,
     });
+
+    const [size, changeSize] = useState(0.5);
 
     const ballRef = useRef(null);
     const animationFrameIdRef = useRef(null);
@@ -39,7 +42,7 @@ const useThreeScene = (aRef) => {
         );
         camera.position.z = 10;
 
-        const geometry = new THREE.CircleGeometry(0.5, 100);
+        const geometry = new THREE.CircleGeometry(size, 100);
         const material = new THREE.MeshBasicMaterial({ color: "#ff0000" });
         const ball = new THREE.Mesh(geometry, material);
         scene.add(ball);
@@ -97,6 +100,23 @@ const useThreeScene = (aRef) => {
         renderLoop();
     }, [aRef]);
 
+    useEffect(() => {
+        const { scene } = threeRefs.current;
+        if (!scene || !ballRef.current) return;
+
+        // Remove old ball
+        scene.remove(ballRef.current);
+
+        // Create new geometry with updated size
+        const geometry = new THREE.CircleGeometry(size, 100);
+        const material = new THREE.MeshBasicMaterial({ color: "#ff0000" });
+        const newBall = new THREE.Mesh(geometry, material);
+
+        scene.add(newBall);
+        ballRef.current = newBall;
+    }, [size]);
+
+
     //Stops the loop when screen blurs
     useFocusEffect(
         useCallback(() => {
@@ -110,7 +130,7 @@ const useThreeScene = (aRef) => {
         }, [])
     );
 
-    return onContextCreate;
+    return { onContextCreate, size, changeSize };
 };
 
 const Geometry = () => {
@@ -118,7 +138,7 @@ const Geometry = () => {
     const aRef = useAccelerometer();
     const gRef = useGyroscope();
 
-    const onContextCreate = useThreeScene(aRef, gRef);
+    const { onContextCreate, size, changeSize } = useThreeScene(aRef, gRef);
 
     return (
         <SafeAreaProvider style={styles.screen}>
@@ -128,10 +148,21 @@ const Geometry = () => {
                     style={styles.glView}
                     onContextCreate={onContextCreate}
                 />
+                <Button
+                title={`Size: ${size}`}
+                onPress={() =>{
+                    if(size>=4){changeSize(0.5)}else{
+                        changeSize(prev => prev + 0.5)
+                    }
+                    }
+                }
+                />
 
+                
                 {/* <View style={styles.footer}>
                     <SensorDataDisplay a={a} g={g} styles={styles} />
                 </View> */}
+
             </SafeAreaView>
         </SafeAreaProvider>
     );
