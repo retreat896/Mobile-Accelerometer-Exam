@@ -1,6 +1,6 @@
 # 📱 Accelerometer Examination
 
-![GitHub Commit Activity](https://img.shields.io/github/commit-activity/m/retreat896/Mobile-Accelerometer-Exam?color=blue&logo=github) ![Last Commit](https://img.shields.io/github/last-commit/retreat896/Mobile-Accelerometer-Exam?color=green)
+![GitHub Commit Activity](https://img.shields.io/github/commit-activity/m/retreat896/MobileDev-Exam1?color=blue&logo=github) ![Last Commit](https://img.shields.io/github/last-commit/retreat896/MobileDev-Exam1?color=green)
 
 ### 🧭 Exploring Motion Sensors with React Native & Expo
 
@@ -45,8 +45,8 @@ The app provides:
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/retreat896/Mobile-Accelerometer-Exam.git
-cd Mobile-Accelerometer-Exam
+git clone https://github.com/retreat896/MobileDev-Exam1.git
+cd MobileDev-Exam1
 ```
 
 ### 2️⃣ Install Dependencies
@@ -89,7 +89,7 @@ eas build --platform android --profile preview --local
 ## 📂 Project Structure
 
 ```
-Mobile-Accelerometer-Exam/
+MobileDev-Exam1/
 ├── app/
 │   ├── index.jsx              # Home Screen
 │   ├── geometry.jsx           # 3D Showcase
@@ -132,13 +132,13 @@ Mobile-Accelerometer-Exam/
 
 ### 🔍 Contribution Overview
 
-![GitHub Commit Activity](https://img.shields.io/github/commit-activity/m/retreat896/Mobile-Accelerometer-Exam?color=blue&logo=github) ![Last Commit](https://img.shields.io/github/last-commit/retreat896/Mobile-Accelerometer-Exam?color=green)
+![GitHub Commit Activity](https://img.shields.io/github/commit-activity/m/retreat896/MobileDev-Exam1?color=blue&logo=github) ![Last Commit](https://img.shields.io/github/last-commit/retreat896/MobileDev-Exam1?color=green)
 
 ### 📈 Graphs & Analytics
 
-[ ![GitHub Graphs](https://github-readme-activity-graph.vercel.app/graph?username=retreat896&repo=Mobile-Accelerometer-Exam&theme=react-dark)](https://github.com/retreat896/Mobile-Accelerometer-Exam)
+[ ![GitHub Graphs](https://github-readme-activity-graph.vercel.app/graph?username=retreat896&repo=MobileDev-Exam1&theme=react-dark)](https://github.com/retreat896/MobileDev-Exam1)
 
-[ ![GitHub Graphs](https://github-readme-activity-graph.vercel.app/graph?username=JMalland&repo=Mobile-Accelerometer-Exam&theme=react-dark)](https://github.com/retreat896/Mobile-Accelerometer-Exam)
+[ ![GitHub Graphs](https://github-readme-activity-graph.vercel.app/graph?username=JMalland&repo=MobileDev-Exam1&theme=react-dark)](https://github.com/retreat896/MobileDev-Exam1)
 
 ---
 
